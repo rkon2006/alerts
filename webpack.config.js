@@ -1,6 +1,11 @@
 const path = require('path');
 const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const extractLess = new ExtractTextPlugin({
+    filename: "../stylesheets/app.css",
+    disable: process.env.NODE_ENV === "development"
+});
 module.exports = {
     context: path.resolve(__dirname, 'scripts'),
 
@@ -46,12 +51,34 @@ module.exports = {
         rules: [
             {
                 test: /\.jsx?$/,
-                use: [ 'babel-loader', ],
+                use: ['babel-loader',],
                 exclude: /node_modules/
             },
             {
                 test: /\.css$/,
-                use: [ 'style-loader', 'css-loader?modules', ],
+                use: ['style-loader', 'css-loader',],
+            },
+            {
+                test: /\.less/,
+                use: extractLess.extract({
+                    use: [
+                        {
+                            loader: "css-loader"
+                        },
+                        {
+                            loader: "less-loader"
+                        }
+                    ],
+                    fallback: 'style-loader'
+                })
+            },
+            {
+                test: /\.html$/,
+                use: 'html-loader'
+            },
+            {
+                test: /\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/,
+                use: 'url-loader'
             }
         ],
     },
@@ -60,7 +87,9 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         // enable HMR globally
 
-        new webpack.NamedModulesPlugin(),
+        extractLess,
+
+        new webpack.NamedModulesPlugin()
         // prints more readable module names in the browser console on HMR updates
     ],
 };

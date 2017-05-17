@@ -1,9 +1,12 @@
+import template from './template.html';
+
 export default function customAlerts() {
     return {
         restrict: 'E',
-        templateUrl: './template.html',
+        template: template,
         scope: {
-            alerts: '=list'
+            alerts: '=alerts',
+            closeAlert: '=onAlertClose'
         }
     };
 }
